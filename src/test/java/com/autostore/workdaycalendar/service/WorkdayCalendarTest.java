@@ -35,13 +35,14 @@ class WorkdayCalendarTest {
         workdayCalendar.setWorkdayStartAndStop(DEFAULT_WORKDAY_START, DEFAULT_WORKDAY_STOP);
     }
 
-
     @ParameterizedTest
     @DisplayName("Predefined testcases should give expected results")
     @MethodSource("getPredefinedTestParameters")
     void predefinedTestcases(LocalDateTime startDateTime, float incrementBy, LocalDateTime expectedDateTime) {
         workdayCalendar.setWorkdayStartAndStop(DEFAULT_WORKDAY_START, DEFAULT_WORKDAY_STOP);
-        workdayCalendar.setRecurringHoliday(LocalDate.of(2004, 5, 27));
+
+        workdayCalendar.setRecurringHoliday(LocalDate.of(2004, 5, 17));
+        workdayCalendar.setHoliday(LocalDate.of(2004, 5, 27));
 
         LocalDateTime result = workdayCalendar.getWorkdayIncrement(startDateTime, incrementBy);
         result = result.withSecond(0).withNano(0);
@@ -90,15 +91,18 @@ class WorkdayCalendarTest {
     }
 
     @Test
-    @DisplayName("Decrement 3 workdays")
+    @DisplayName("Decrement 3.5 workdays")
     void testDecrementWithoutHolidaysOrWeekends() {
         LocalDateTime result = workdayCalendar.getWorkdayIncrement(FRIDAY_END, -3.5f);
 
+        // Tuesday same week
         assertResult(FRIDAY_END.minusDays(3).withHour(12), result, DEFAULT_WORKDAY_START, DEFAULT_WORKDAY_STOP);
     }
 
 
     private void assertResult(LocalDateTime expected, LocalDateTime result, LocalTime workdayStart, LocalTime workdayStop) {
+        result = result.withSecond(0).withNano(0);
+
         assertEquals(expected, result);
         assertNotEquals(DayOfWeek.SATURDAY, result.getDayOfWeek());
         assertNotEquals(DayOfWeek.SUNDAY, result.getDayOfWeek());
@@ -114,11 +118,9 @@ class WorkdayCalendarTest {
                 Arguments.of(LocalDateTime.of(2004, 5, 24, 18, 5),
                         -5.5f,
                         LocalDateTime.of(2004, 5, 14, 12, 0)),
-
                 Arguments.of(LocalDateTime.of(2004, 5, 24, 19, 3),
                         44.723656f,
                         LocalDateTime.of(2004, 7, 27, 13, 47)),
-
                 Arguments.of(LocalDateTime.of(2004, 5, 24, 18, 3),
                         -6.7470217f,
                         LocalDateTime.of(2004, 5, 13, 10, 2)),
