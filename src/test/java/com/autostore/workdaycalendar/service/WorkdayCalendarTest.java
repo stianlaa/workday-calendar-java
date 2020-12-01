@@ -122,7 +122,16 @@ class WorkdayCalendarTest {
         LocalDateTime result = workdayCalendar.getWorkdayIncrement(FRIDAY_END, -3.56321f);
 
         // Tuesday same week, aproximately mid day
-        assertResult(FRIDAY_END.minusDays(3).withHour(11).withMinute(29), result, DEFAULT_WORKDAY_START, DEFAULT_WORKDAY_STOP);
+        assertResult(FRIDAY_END.minusDays(3).withHour(11).withMinute(30), result, DEFAULT_WORKDAY_START, DEFAULT_WORKDAY_STOP);
+    }
+
+    @Test
+    @DisplayName("Decrement 3.5 workdays from right before workday stop")
+    void shouldDecrement() {
+        LocalDateTime result = workdayCalendar.getWorkdayIncrement(FRIDAY_END.minusMinutes(8), -3.5f);
+
+        // Tuesday same week, 8 minutes before midday
+        assertResult(FRIDAY_END.minusDays(3).minusHours(4).minusMinutes(8), result, DEFAULT_WORKDAY_START, DEFAULT_WORKDAY_STOP);
     }
 
 
@@ -149,15 +158,13 @@ class WorkdayCalendarTest {
                         44.723656f,
                         LocalDateTime.of(2004, 7, 27, 13, 47)),
 
-                // Test case result appears to be flawed at manual control, 16:00 - 8 * .7470217 = 10:1.26
-//                Arguments.of(LocalDateTime.of(2004, 5, 24, 18, 3),
-//                        -6.7470217f,
-//                        LocalDateTime.of(2004, 5, 13, 10, 2)),
+                Arguments.of(LocalDateTime.of(2004, 5, 24, 18, 3),
+                        -6.7470217f,
+                        LocalDateTime.of(2004, 5, 13, 10, 2)),
 
-                // Test case result appears to be flawed at manual control, 08:00 + 8 * .782709 = 14:15.42
-//                Arguments.of(LocalDateTime.of(2004, 5, 24, 8, 3),
-//                        12.782709f,
-//                        LocalDateTime.of(2004, 6, 10, 14, 18)),
+                Arguments.of(LocalDateTime.of(2004, 5, 24, 8, 3),
+                        12.782709f,
+                        LocalDateTime.of(2004, 6, 10, 14, 18)),
 
                 Arguments.of(LocalDateTime.of(2004, 5, 24, 7, 3),
                         8.276628f,

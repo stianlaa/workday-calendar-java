@@ -26,7 +26,7 @@ public class WorkdayCalendar {
         float workdayRemainder = incrementInWorkdays - wholeWorkdays;
 
         LocalDate dateResult = findIncrementedDate(startDateTime, wholeWorkdays, isIncrementing);
-        LocalTime timeResult = findIncrementedTime(workdayRemainder, isIncrementing);
+        LocalTime timeResult = findIncrementedTime(startDateTime.toLocalTime(), workdayRemainder, isIncrementing);
 
         return dateResult.atTime(timeResult);
     }
@@ -49,9 +49,20 @@ public class WorkdayCalendar {
         return localDate;
     }
 
-    private LocalTime findIncrementedTime(float workdayRemainder, boolean isIncrementing) {
-        long workdayRemainderNanos = (long) (ChronoUnit.NANOS.between(workdayStart, workdayStop) * workdayRemainder);
-        return isIncrementing ? workdayStart.plusNanos(workdayRemainderNanos) : workdayStop.plusNanos(workdayRemainderNanos);
+    private LocalTime findIncrementedTime(LocalTime startTime, float workdayRemainder, boolean isIncrementing) {
+        long workdayRemainderInMinutes = (long) (ChronoUnit.MINUTES.between(workdayStart, workdayStop) * workdayRemainder);
+        long initialMinutesIntoWorkday = findInitialMinutesIntoWorkday(startTime, isIncrementing);
+        if (isIncrementing) {
+            return workdayStart.plusMinutes(workdayRemainderInMinutes + initialMinutesIntoWorkday);
+        }
+        return workdayStop.plusMinutes(workdayRemainderInMinutes + initialMinutesIntoWorkday);
+    }
+
+    private long findInitialMinutesIntoWorkday(LocalTime startTime, boolean isIncrementing) {
+        if (startTime.isAfter(workdayStart) && startTime.isBefore(workdayStop)) {
+            return isIncrementing ? ChronoUnit.MINUTES.between(workdayStart, startTime) : ChronoUnit.MINUTES.between(workdayStop, startTime);
+        }
+        return 0;
     }
 
     private LocalDate findNextWorkingdate(LocalDate fromDate, boolean isIncrementing) {
